@@ -58,7 +58,7 @@ public class Hero {
 	public void draw(Batch batch){
 		float l = life / MAX_LIFE;
 		
-		sprite.setPosition(position.x - 32, position.y);
+		sprite.setPosition(position.x - 32, position.y + 8);
 		
 		float flashFrequency = 8;
 		float flashRatio = .5f;
