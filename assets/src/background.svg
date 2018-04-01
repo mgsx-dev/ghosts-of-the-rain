@@ -15,7 +15,10 @@
    id="svg4557"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="background.svg">
+   sodipodi:docname="background.svg"
+   inkscape:export-filename="/home/germain/git/dl-gamejam-2/android/assets/background.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4559" />
   <sodipodi:namedview
@@ -26,7 +29,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="437.5303"
+     inkscape:cx="436.10172"
      inkscape:cy="99.580131"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"

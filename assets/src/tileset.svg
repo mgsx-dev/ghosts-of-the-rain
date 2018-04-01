@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="199.07156"
-     inkscape:cy="1012.9994"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="179.33708"
+     inkscape:cy="953.75216"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -41,7 +41,8 @@
      inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
-     inkscape:snap-global="true">
+     inkscape:snap-global="true"
+     borderlayer="false">
     <inkscape:grid
        type="xygrid"
        id="grid4136"
