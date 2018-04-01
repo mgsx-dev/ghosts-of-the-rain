@@ -129,4 +129,8 @@ public class TiledMapStream {
 	public Cell getCell(TiledMapTileLayer layer, int ix, int iy) {
 		return layer.getCell(ix - offsetX, iy);
 	}
+
+	public int getWidth() {
+		return sizeX;
+	}
 }

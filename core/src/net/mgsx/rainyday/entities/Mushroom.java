@@ -62,6 +62,5 @@ public class Mushroom extends Entity
 		hideTimeout = timeout;
 		time = 0;
 	}
-
 	
 }

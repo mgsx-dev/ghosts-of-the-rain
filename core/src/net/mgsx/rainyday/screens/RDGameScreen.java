@@ -37,6 +37,13 @@ public class RDGameScreen extends ScreenAdapter
 {
 	private static final boolean DEBUG = false;
 	
+	private static final int SPAWN_TILE_EXTRA_WIDTH = 2;
+	
+	/** spawn window in tiles */
+	private static final int SPAWN_TILE_WIDTH = 640 / 32 + 2 * SPAWN_TILE_EXTRA_WIDTH;
+	
+	private static final float SPAWN_CHANCE = .2f;
+	
 	private OrthographicCamera camera;
 	private Viewport viewport;
 	private TiledMapRenderer mapRenderer;
@@ -172,6 +179,14 @@ public class RDGameScreen extends ScreenAdapter
 				hero.eat();
 				mushroom.eat();
 				mushroom.hide(0);
+			}else{
+				// replace mushroom if out of screen
+				if(mushroom.position.x < cameraPosition.x - 320 - SPAWN_TILE_EXTRA_WIDTH * 32){
+					int oldIX = (int)(mushroom.position.x / 32);
+					int newIX = oldIX + SPAWN_TILE_WIDTH;
+					int newIY = findGroundPosition(newIX);
+					setEntityPosition(mushroom.position, newIX, newIY);
+				}
 			}
 		}
 		
@@ -479,6 +494,16 @@ public class RDGameScreen extends ScreenAdapter
 		shapeRenderer.end();
 	}
 	
+	private int findGroundPosition(int ix) {
+		for(int iy=24 ; iy>=0 ; iy--){
+			Cell cell = mapStream.getCell(groundLayer, ix, iy);
+			if(cell != null && cell.getTile() != null){
+				return iy;
+			}
+		}
+		return 0;
+	}
+
 	private void transformMonsters() {
 		for(Monster monster : monsters){
 			monster.hide(MathUtils.random(1f)); 
@@ -492,26 +517,24 @@ public class RDGameScreen extends ScreenAdapter
 	}
 
 	private void spawnMushrooms() {
-		int NMUSHROOMS = 5;
-		for(int i=0 ; i<NMUSHROOMS ; i++){
-			int ix = (int)((camera.position.x + MathUtils.random(640f) - 320) / 32 );
-			int piy = -1;
-			for(int iy=24 ; iy>=0 ; iy--){
-				Cell cell = mapStream.getCell(groundLayer, ix, iy);
-				if(cell != null && cell.getTile() != null){
-					piy = iy;
-					break;
-				}
-			}
-			if(piy <= 0) continue;
-			float fx = (ix + .5f) * 32;
-			float fy2 = (piy + .5f) * 32;
+		// spawn some mushrooms in full world
+		for(int i=0 ; i<SPAWN_TILE_WIDTH ; i++){
+			
+			if(!MathUtils.randomBoolean(SPAWN_CHANCE)) continue;
+			
+			int ix = (int)((camera.position.x - 320) / 32 ) + i;
+			int iy = findGroundPosition(ix);
 			
 			Mushroom mushroom = new Mushroom(mushroomTexture);
-			mushroom.position.set(fx, fy2);
+			setEntityPosition(mushroom.position, ix, iy);
 			mushrooms.add(mushroom);
 			entities.add(mushroom);
 		}
+	}
+	
+	private void setEntityPosition(Vector2 position, int ix, int iy){
+		position.x = (ix + .5f) * 32;
+		position.y = (iy + .5f) * 32;
 	}
 
 	@Override
