@@ -235,13 +235,6 @@ public class RDGameScreen extends ScreenAdapter
 			if(mushroom.isOver()){
 				entities.removeValue(mushroom, true);
 				mushrooms.removeIndex(i);
-				
-				if(!mushroom.isEaten()){
-					Monster monster = new Monster(hero, monsterTexture);
-					monster.position.set(mushroom.position);
-					monsters.add(monster);
-					entities.add(monster);
-				}
 			}else{
 				i++;
 			}
@@ -506,13 +499,20 @@ public class RDGameScreen extends ScreenAdapter
 
 	private void transformMonsters() {
 		for(Monster monster : monsters){
-			monster.hide(MathUtils.random(1f)); 
+			monster.hide(); 
 		}
 	}
 
 	private void transformMushrooms() {
 		for(Mushroom mushroom : mushrooms){
 			mushroom.hide(MathUtils.random(1f)); 
+			
+			if(!mushroom.isEaten()){
+				Monster monster = new Monster(hero, monsterTexture);
+				monster.position.set(mushroom.position).add(0, 32);
+				monsters.add(monster);
+				entities.add(monster);
+			}
 		}
 	}
 
