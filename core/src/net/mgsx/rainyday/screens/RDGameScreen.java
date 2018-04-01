@@ -295,7 +295,7 @@ public class RDGameScreen extends RDBaseScreen
 		batch.setShader(heroShader);
 		// hero.life = 99;
 		heroShader.setUniformf("u_life", hero.life / Hero.MAX_LIFE);
-		heroShader.setUniformf("u_y", hero.position.y + 4 + 8); // TODO sprite based !
+		heroShader.setUniformf("u_y", hero.isDead() ? -10 : hero.position.y + 4 + 8); // TODO sprite based !
 		heroShader.setUniformf("u_height", 46f);
 		heroShader.setUniformi("u_texture2", 1);
 		hero.draw(batch);
