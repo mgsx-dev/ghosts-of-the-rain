@@ -1,6 +1,7 @@
 package net.mgsx.rainyday.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -32,6 +33,7 @@ import net.mgsx.rainyday.entities.Mushroom;
 
 public class RDGameScreen extends ScreenAdapter
 {
+	private static final boolean DEBUG = false;
 	
 	private OrthographicCamera camera;
 	private Viewport viewport;
@@ -54,6 +56,7 @@ public class RDGameScreen extends ScreenAdapter
 	private Array<Monster> monsters = new Array<Monster>();
 	private Array<Entity> entities = new Array<Entity>();
 	private Color rainColor = new Color();
+	private boolean paused;
 	
 	private static enum WorldState{
 		WINTER, SPRING, SUMMER, AUTUMN, 
@@ -95,6 +98,15 @@ public class RDGameScreen extends ScreenAdapter
 	
 	@Override
 	public void render(float delta) {
+		
+		if(DEBUG){
+			if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+				paused = !paused;
+			}
+			if(paused){
+				delta = 0;
+			}
+		}
 		
 		// update
 		
