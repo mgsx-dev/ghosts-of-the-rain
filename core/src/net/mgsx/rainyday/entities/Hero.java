@@ -3,6 +3,7 @@ package net.mgsx.rainyday.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -57,7 +58,7 @@ public class Hero {
 	public void draw(Batch batch){
 		float l = life / MAX_LIFE;
 		
-		
+		sprite.setPosition(position.x - 32, position.y);
 		
 		float flashFrequency = 8;
 		float flashRatio = .5f;
@@ -72,6 +73,9 @@ public class Hero {
 			color.set(Color.WHITE).lerp(Color.RED, l);
 			sprite.setTexture(texturePlain);
 		}
+		sprite.setTexture(texturePlain);
+		textureSkeleton.bind(1);
+		Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
 		
 		sprite.setColor(color);
 		// sprite.setTexture(asSkeleton ? textureSkeleton : texturePlain);
@@ -135,9 +139,6 @@ public class Hero {
 		if(position.x > maxX) position.x = maxX;
 		
 		position.add(dx * delta * speed, dy * delta * speed);
-		
-		sprite.setPosition(position.x - 32, position.y);
-		
 	}
 
 	public void eat() {

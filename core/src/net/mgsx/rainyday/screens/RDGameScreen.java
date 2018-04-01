@@ -405,8 +405,12 @@ public class RDGameScreen extends ScreenAdapter
 			mushroom.draw(batch);
 		}
 		
-//		batch.setShader(heroShader);
-//		heroShader.setUniformf("u_color", Color.ORANGE);
+		batch.setShader(heroShader);
+		// hero.life = 99;
+		heroShader.setUniformf("u_life", hero.life / Hero.MAX_LIFE);
+		heroShader.setUniformf("u_y", hero.position.y + 4);
+		heroShader.setUniformf("u_height", 46f);
+		heroShader.setUniformi("u_texture2", 1);
 		hero.draw(batch);
 		batch.setShader(null);
 		
