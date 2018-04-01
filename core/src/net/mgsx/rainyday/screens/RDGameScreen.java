@@ -30,6 +30,8 @@ import net.mgsx.rainyday.entities.Entity;
 import net.mgsx.rainyday.entities.Hero;
 import net.mgsx.rainyday.entities.Monster;
 import net.mgsx.rainyday.entities.Mushroom;
+import net.mgsx.rainyday.utils.TiledMapLink;
+import net.mgsx.rainyday.utils.TiledMapStream;
 
 public class RDGameScreen extends ScreenAdapter
 {
@@ -38,7 +40,6 @@ public class RDGameScreen extends ScreenAdapter
 	private OrthographicCamera camera;
 	private Viewport viewport;
 	private TiledMapRenderer mapRenderer;
-	private TiledMap map;
 	private SpriteBatch batch;
 	private Hero hero;
 	private Vector2 cameraPosition = new Vector2(320, 240);
@@ -57,6 +58,7 @@ public class RDGameScreen extends ScreenAdapter
 	private Array<Entity> entities = new Array<Entity>();
 	private Color rainColor = new Color();
 	private boolean paused;
+	private TiledMapStream mapStream;
 	
 	private static enum WorldState{
 		WINTER, SPRING, SUMMER, AUTUMN, 
@@ -64,16 +66,28 @@ public class RDGameScreen extends ScreenAdapter
 	private WorldState worldState = WorldState.SUMMER;
 	private float worldStateTimeout = 5;
 	private TiledMapTileLayer groundLayer;
+
+	private TiledMapTileLayer laddersLayer;
 	
 	public RDGameScreen() {
-		map = new TmxMapLoader().load("map1.tmx");
-		groundLayer = (TiledMapTileLayer)map.getLayers().get("ground");
-		mushroomTexture = map.getTileSets().getTileSet(0).getTile(7).getTextureRegion();
-		monsterTexture = map.getTileSets().getTileSet(0).getTile(8).getTextureRegion();
+		TiledMap baseMap = new TmxMapLoader().load("map1.tmx");
+		
+		// map stream with a look ahead of 30 tiles (640 screen + 320 lookahead)
+		mapStream = new TiledMapStream(baseMap, 30);
+		
+		// create a loop on the same map
+		TiledMapLink linkMap = mapStream.appendMap(baseMap);
+		linkMap.nextMap = linkMap;
+		
+		groundLayer = mapStream.getTileLayer("ground");
+		laddersLayer = mapStream.getTileLayer("ladders");
+		
+		mushroomTexture = baseMap.getTileSets().getTileSet(0).getTile(7).getTextureRegion();
+		monsterTexture = baseMap.getTileSets().getTileSet(0).getTile(8).getTextureRegion();
 		camera = new OrthographicCamera(640, 480);
 		viewport = new FitViewport(640, 480, camera);
 		batch = new SpriteBatch();
-		mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
+		mapRenderer = new OrthogonalTiledMapRenderer(mapStream.getMap(), batch);
 		hero = new Hero();
 		shapeRenderer = new ShapeRenderer();
 		perlin = new Texture(Gdx.files.internal("perlin.png"));
@@ -109,6 +123,8 @@ public class RDGameScreen extends ScreenAdapter
 		}
 		
 		// update
+		
+		mapStream.update(cameraPosition.x - 320);
 		
 		time += delta * 3;
 		
@@ -168,7 +184,7 @@ public class RDGameScreen extends ScreenAdapter
 				int iy = (int)((hero.position.y + 56) / 32f);
 				for( ; iy < 20 ; iy++){
 					
-					Cell cell = groundLayer.getCell(ix, iy);
+					Cell cell = mapStream.getCell(groundLayer, ix, iy);
 					if(cell != null && cell.getTile() != null){
 						underRainLeft = false;
 						break;
@@ -181,7 +197,7 @@ public class RDGameScreen extends ScreenAdapter
 				int iy = (int)((hero.position.y + 56) / 32f);
 				for( ; iy < 20 ; iy++){
 					
-					Cell cell = groundLayer.getCell(ix, iy);
+					Cell cell = mapStream.getCell(groundLayer, ix, iy);
 					if(cell != null && cell.getTile() != null){
 						underRainRight = false;
 						break;
@@ -234,7 +250,7 @@ public class RDGameScreen extends ScreenAdapter
 			int ix = MathUtils.floor(hero.position.x / 32 + .5f);
 			int iy = (int)(hero.position.y / 32 + 1);
 			
-			Cell cell = groundLayer.getCell(ix, iy);
+			Cell cell = mapStream.getCell(groundLayer, ix, iy);
 			hero.canGoRight = (cell == null || cell.getTile() == null);
 			if(!hero.canGoRight){
 				//hero.position.x = (ix) * 32;
@@ -245,7 +261,7 @@ public class RDGameScreen extends ScreenAdapter
 			int ix = MathUtils.floor(hero.position.x / 32 - .5f);
 			int iy = (int)(hero.position.y / 32 + 1);
 			
-			Cell cell = groundLayer.getCell(ix, iy);
+			Cell cell = mapStream.getCell(groundLayer, ix, iy);
 			hero.canGoLeft = (cell == null || cell.getTile() == null);
 			if(!hero.canGoLeft){
 				//hero.position.x = (ix) * 32;
@@ -281,7 +297,7 @@ public class RDGameScreen extends ScreenAdapter
 				int ix = (int)(hero.position.x / 32);
 				int iy = MathUtils.ceil(hero.position.y / 32 - .5f);
 				
-				Cell cell = groundLayer.getCell(ix, iy);
+				Cell cell = mapStream.getCell(groundLayer, ix, iy);
 				if(cell != null && cell.getTile() != null) break;
 				if(hero.position.y < 0) break;
 				hero.position.y -= 600 * delta;
@@ -292,7 +308,7 @@ public class RDGameScreen extends ScreenAdapter
 				int ix = (int)(hero.position.x / 32);
 				int iy = MathUtils.floor(hero.position.y / 32 + 1f);
 				
-				Cell cell = groundLayer.getCell(ix, iy);
+				Cell cell = mapStream.getCell(groundLayer, ix, iy);
 				if(cell == null) break;
 				if(cell.getTile() == null) break;
 				
@@ -302,12 +318,10 @@ public class RDGameScreen extends ScreenAdapter
 		}
 		
 		
-		
-		TiledMapTileLayer laddersLayer = (TiledMapTileLayer)map.getLayers().get("ladders");
 		{
 			int ix = (int)(hero.position.x / 32);
 			int iy = (int)(hero.position.y / 32 + .5f);
-			Cell cell = laddersLayer.getCell(ix, iy);
+			Cell cell = mapStream.getCell(laddersLayer, ix, iy);
 			if(cell != null && cell.getTile() != null){
 				hero.canGoDown = true;
 			}else{
@@ -317,7 +331,7 @@ public class RDGameScreen extends ScreenAdapter
 		{
 			int ix = (int)(hero.position.x / 32);
 			int iy = MathUtils.ceil(hero.position.y / 32 + .5f);
-			Cell cell = laddersLayer.getCell(ix, iy);
+			Cell cell = mapStream.getCell(laddersLayer, ix, iy);
 			if(cell != null && cell.getTile() != null){
 				hero.canGoUp = true;
 			}else{
@@ -369,8 +383,14 @@ public class RDGameScreen extends ScreenAdapter
 		batch.end();
 		float lum = 1 - rain;
 		batch.setColor(lum, lum, lum, 1);
+
+		mapStream.begin(camera);
 		mapRenderer.setView(camera);
 		mapRenderer.render();
+		mapStream.end(camera);
+		
+		// set batch matrix again because camera has changed
+		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		
 		for(Mushroom mushroom : mushrooms){
@@ -402,7 +422,7 @@ public class RDGameScreen extends ScreenAdapter
 			int ix = (int)(camera.position.x / 32 + i - NRAYS/2);
 			int piy = 0;
 			for(int iy=24 ; iy>=0 ; iy--){
-				Cell cell = groundLayer.getCell(ix, iy);
+				Cell cell = mapStream.getCell(groundLayer, ix, iy);
 				if(cell != null && cell.getTile() != null){
 					piy = iy;
 					break;
@@ -440,7 +460,7 @@ public class RDGameScreen extends ScreenAdapter
 				int ix = (int)(camera.position.x / 32 + i * 20f / NRAYS - 10);
 				int piy = 0;
 				for(int iy=24 ; iy>=0 ; iy--){
-					Cell cell = groundLayer.getCell(ix, iy);
+					Cell cell = mapStream.getCell(groundLayer, ix, iy);
 					if(cell != null && cell.getTile() != null){
 						piy = iy;
 						break;
@@ -477,7 +497,7 @@ public class RDGameScreen extends ScreenAdapter
 			int ix = (int)((camera.position.x + MathUtils.random(640f) - 320) / 32 );
 			int piy = -1;
 			for(int iy=24 ; iy>=0 ; iy--){
-				Cell cell = groundLayer.getCell(ix, iy);
+				Cell cell = mapStream.getCell(groundLayer, ix, iy);
 				if(cell != null && cell.getTile() != null){
 					piy = iy;
 					break;
