@@ -21,7 +21,7 @@ import net.mgsx.rainyday.utils.TiledMapStream;
 
 abstract public class RDBaseScreen extends ScreenAdapter
 {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	protected OrthographicCamera camera;
 	protected Viewport viewport;
@@ -60,6 +60,17 @@ abstract public class RDBaseScreen extends ScreenAdapter
 	
 	@Override
 	public void render(float delta) {
+		
+		// update
+		if(DEBUG){
+			if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+				paused = !paused;
+			}
+			if(paused){
+				delta = 0;
+			}
+		}
+		
 		update(delta);
 		
 		// render
@@ -83,16 +94,6 @@ abstract public class RDBaseScreen extends ScreenAdapter
 	}
 	
 	protected void update(float delta){
-		if(DEBUG){
-			if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
-				paused = !paused;
-			}
-			if(paused){
-				delta = 0;
-			}
-		}
-		
-		// update
 		
 		mapStream.update(cameraPosition.x - 320);
 		

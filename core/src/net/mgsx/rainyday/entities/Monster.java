@@ -56,7 +56,7 @@ public class Monster extends Entity
 				direction.set(hero.position).add(0, 32).sub(position);
 				float len = direction.len();
 				if(len > 24){
-					float speed = 30;
+					float speed = 70;
 					position.mulAdd(direction, speed * delta / len);
 				}else{
 					hero.hurt();

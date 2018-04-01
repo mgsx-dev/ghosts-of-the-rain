@@ -39,10 +39,13 @@ public class TiledMapStream {
 		TiledMapLink mapLink = new TiledMapLink();
 		mapLink.map = map;
 		mapLink.sizeX = map.getProperties().get("width", Integer.class);
-		mapLink.previousMap = head;
-		head = mapLink;
-		if(tail == null){
-			tail = head;
+		mapLink.previousMap = tail;
+		if(tail != null){
+			tail.nextMap = mapLink;
+		}
+		tail = mapLink;
+		if(head == null){
+			head = tail;
 		}
 		return mapLink;
 	}

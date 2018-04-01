@@ -43,6 +43,7 @@ public class RDGameScreen extends RDBaseScreen
 		hero = new Hero();
 	}
 	
+	@SuppressWarnings("unused")
 	@Override
 	protected TiledMapStream createMapStream() 
 	{
@@ -51,9 +52,38 @@ public class RDGameScreen extends RDBaseScreen
 		// map stream with a look ahead of 30 tiles (640 screen + 320 lookahead)
 		TiledMapStream mapStream = new TiledMapStream(baseMap, 30);
 		
-		// create a loop on the same map
-		TiledMapLink linkMap = mapStream.appendMap(baseMap);
-		linkMap.nextMap = linkMap;
+		String [] names = new String[]{"map-start", "map1", "map-complex", "map-double", "map-desert", "map-libgdx"};
+		String debugMap = null; // for testing purpose names[5];
+		boolean randomSequence = true;
+		
+		TiledMapLink prev = null, first = null;
+		if(debugMap != null){
+			first = prev = mapStream.appendMap(RDAssets.i().getMap(debugMap + ".tmx"));
+		}
+		else if(randomSequence){
+			Array<String> randName = new Array<String>();
+			for(int i=1; i<names.length ; i++){
+				randName.add(names[i]);
+			}
+			prev = mapStream.appendMap(RDAssets.i().getMap(names[0] + ".tmx"));
+			while(randName.size > 0){
+				TiledMapLink linkMap = mapStream.appendMap(RDAssets.i().getMap(randName.removeIndex(MathUtils.random(randName.size-1)) + ".tmx"));
+				prev = linkMap;
+				if(first == null){
+					first = linkMap;
+				}
+			}
+		}else{
+			for(String name : names){
+				// create a loop on the same map
+				TiledMapLink linkMap = mapStream.appendMap(RDAssets.i().getMap(name + ".tmx"));
+				prev = linkMap;
+				if(first == null){
+					first = prev;
+				}
+			}
+		}
+		prev.nextMap = first;
 		
 		laddersLayer = mapStream.getTileLayer("ladders");
 		

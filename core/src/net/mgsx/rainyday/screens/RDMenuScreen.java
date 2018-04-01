@@ -14,6 +14,8 @@ import net.mgsx.rainyday.utils.TiledMapStream;
 
 public class RDMenuScreen extends RDBaseScreen
 {
+	private boolean flashing;
+	
 	@Override
 	protected TiledMapStream createMapStream() {
 		
@@ -38,6 +40,8 @@ public class RDMenuScreen extends RDBaseScreen
 		}
 		
 		cameraPosition.x += delta * 100;
+		
+		if(delta > 0) flashing = MathUtils.randomBoolean(.05f);
 	}
 	
 	@Override
@@ -51,7 +55,7 @@ public class RDMenuScreen extends RDBaseScreen
 		batch.draw(region, cameraPosition.x - region.getRegionWidth()/2, 32);
 		
 		region = RDAssets.i().titleTexture;
-		float l = MathUtils.randomBoolean(.05f) ? 1 : 0;
+		float l = flashing ? 1 : 0;
 		batch.setColor(l,l,l, 1);
 		batch.draw(region, cameraPosition.x - region.getRegionWidth()/2, 480 - region.getRegionHeight());
 	}

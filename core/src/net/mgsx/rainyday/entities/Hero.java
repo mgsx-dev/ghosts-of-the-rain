@@ -31,8 +31,8 @@ public class Hero {
 	private float eatTimeout;
 	
 	public static float MAX_LIFE = 100;
-	public static float LIFE_PER_MUSHROOM = 20;
-	public static float LIFE_PER_MONSTER = 10;
+	public static float LIFE_PER_MUSHROOM = 10;
+	public static float LIFE_PER_MONSTER = 30;
 	public static float RAIN_DAMAGES_PER_SEC = 20;
 	public float life = MAX_LIFE;
 
