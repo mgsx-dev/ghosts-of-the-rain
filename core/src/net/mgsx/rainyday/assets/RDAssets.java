@@ -16,7 +16,7 @@ public class RDAssets {
 		return i == null ? i = new RDAssets() : i;
 	}
 	
-	public Texture perlin;
+	public Texture perlin, background;
 	public ShaderProgram rainShader, skyShader, heroShader;
 	public TextureRegion mushroomTexture, monsterTexture, pressStartTexture, titleTexture;
 	
@@ -27,6 +27,9 @@ public class RDAssets {
 	public RDAssets() {
 		perlin = new Texture(Gdx.files.internal("perlin.png"));
 		perlin.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
+		
+		background = new Texture(Gdx.files.internal("background.png"));
+		background.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
 		
 		rainShader = new ShaderProgram(Gdx.files.internal("shaders/rain.vs"), Gdx.files.internal("shaders/rain.fs"));
 		if(!rainShader.isCompiled()){

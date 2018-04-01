@@ -9,14 +9,17 @@ varying vec2 v_texCoords;
 uniform sampler2D u_texture;
 uniform vec4 u_color_sky;
 uniform vec4 u_color_horizon;
-
+uniform vec4 u_bg_color;
+uniform float u_parallax;
 
 void main() {
     vec2 tc = v_texCoords;
     
-    vec4 perlin = texture2D(u_texture, tc);
+    vec4 bg = texture2D(u_texture, vec2(tc.x + u_parallax, tc.y));
 
-    vec4 color = mix(u_color_sky, u_color_horizon, tc.y);
+    vec4 sky = mix(u_color_sky, u_color_horizon, tc.y);
     
-    gl_FragColor = vec4(color.rgb * mix(1.0, perlin.r, 0.1), 0.0);
+    vec3 color = mix(sky.rgb * u_bg_color.rgb, bg.rgb, bg.a * u_bg_color.a);
+    
+    gl_FragColor = vec4(color, 0.0);
 }

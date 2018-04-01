@@ -32,7 +32,7 @@ public class RDMenuScreen extends RDBaseScreen
 	@Override
 	protected void update(float delta) {
 		super.update(delta);
-		rain = MathUtils.lerp(.7f, 1f, Interpolation.sine.apply(time * .05f));
+		rain = MathUtils.lerp(.9f, 1f, Interpolation.sine.apply(time * .05f));
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
 			RainyDay.i().startGame();
 		}

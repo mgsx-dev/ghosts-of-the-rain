@@ -31,9 +31,9 @@ abstract public class RDBaseScreen extends ScreenAdapter
 	
 	
 	protected float time;
-	protected Color [] dryColors = new Color[]{new Color(), new Color()};
-	protected Color [] wetColors = new Color[]{new Color(), new Color()};
-	protected Color [] skyColors = new Color[]{new Color(), new Color()};
+	protected Color [] dryColors = new Color[]{new Color(), new Color(), new Color()};
+	protected Color [] wetColors = new Color[]{new Color(), new Color(), new Color()};
+	protected Color [] skyColors = new Color[]{new Color(), new Color(), new Color()};
 	protected Color rainColor = new Color();
 	protected boolean paused;
 	protected TiledMapStream mapStream;
@@ -119,19 +119,24 @@ abstract public class RDBaseScreen extends ScreenAdapter
 	protected void drawSky(){
 		dryColors[0].set(.5f, .7f, .95f, 1);
 		dryColors[1].set(.9f, .9f, .9f, 1);
+		dryColors[2].set(1f, 1f, 1f, 1);
 		
 		wetColors[0].set(.3f, .3f, .3f, 1);
 		wetColors[1].set(.5f, .4f, .3f, 1);
+		wetColors[2].set(.3f, .3f, .3f, .03f);
 		
 		skyColors[0].set(dryColors[0]).lerp(wetColors[0], rain);
 		skyColors[1].set(dryColors[1]).lerp(wetColors[1], rain);
+		skyColors[2].set(dryColors[2]).lerp(wetColors[2], rain);
 		
 		ShaderProgram skyShader = RDAssets.i().skyShader;
 		batch.disableBlending();
 		batch.setShader(skyShader);
 		skyShader.setUniformf("u_color_sky", skyColors[0]);
 		skyShader.setUniformf("u_color_horizon", skyColors[1]);
-		batch.draw(RDAssets.i().perlin, camera.position.x - 320, 0, 640, 480);
+		skyShader.setUniformf("u_bg_color", skyColors[2]);
+		skyShader.setUniformf("u_parallax", .5f * cameraPosition.x / 640f);
+		batch.draw(RDAssets.i().background, camera.position.x - 320, 0, 640, 480);
 		batch.setShader(null);
 		batch.enableBlending();
 	}
