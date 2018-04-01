@@ -2,10 +2,11 @@ package net.mgsx.rainyday.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+
+import net.mgsx.rainyday.assets.RDAssets;
 
 public class Monster extends Entity
 {
@@ -19,9 +20,9 @@ public class Monster extends Entity
 	private State state = State.APPEAR;
 	private float scale;
 	
-	public Monster(Hero hero, TextureRegion region) {
+	public Monster(Hero hero) {
 		this.hero = hero;
-		sprite = new Sprite(region);
+		sprite = new Sprite(RDAssets.i().monsterTexture);
 		sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
 	}
 	

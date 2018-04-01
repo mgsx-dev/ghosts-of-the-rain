@@ -4,15 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
+import net.mgsx.rainyday.assets.RDAssets;
+
 public class Hero {
 
-	private Texture texturePlain, textureSkeleton;
-	
 	private Sprite sprite;
 
 	public Vector2 position = new Vector2();
@@ -31,8 +30,6 @@ public class Hero {
 
 	private float eatTimeout;
 	
-	public boolean asSkeleton = false;
-	
 	public static float MAX_LIFE = 100;
 	public static float LIFE_PER_MUSHROOM = 20;
 	public static float LIFE_PER_MONSTER = 10;
@@ -49,10 +46,7 @@ public class Hero {
 	private float flashTime;
 	
 	public Hero() {
-		texturePlain = new Texture(Gdx.files.internal("skeleton2.png"));
-		textureSkeleton = new Texture(Gdx.files.internal("skeleton3.png"));
-		
-		sprite = new Sprite(texturePlain, 0, 0, 64, 64);
+		sprite = new Sprite(RDAssets.i().textureHeroPlain, 0, 0, 64, 64);
 	}
 	
 	public void draw(Batch batch){
@@ -68,17 +62,16 @@ public class Hero {
 			}else{
 				color.set(Color.BLACK);
 			}
-			sprite.setTexture(textureSkeleton);
+			sprite.setTexture(RDAssets.i().textureHeroSkeleton);
 		}else{
 			color.set(Color.WHITE).lerp(Color.RED, l);
-			sprite.setTexture(texturePlain);
+			sprite.setTexture(RDAssets.i().textureHeroPlain);
 		}
-		sprite.setTexture(texturePlain);
-		textureSkeleton.bind(1);
+		sprite.setTexture(RDAssets.i().textureHeroPlain);
+		RDAssets.i().textureHeroSkeleton.bind(1);
 		Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
 		
 		sprite.setColor(color);
-		// sprite.setTexture(asSkeleton ? textureSkeleton : texturePlain);
 		sprite.draw(batch);
 	}
 

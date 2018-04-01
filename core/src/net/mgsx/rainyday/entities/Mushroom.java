@@ -2,8 +2,9 @@ package net.mgsx.rainyday.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
+
+import net.mgsx.rainyday.assets.RDAssets;
 
 public class Mushroom extends Entity
 {
@@ -14,8 +15,8 @@ public class Mushroom extends Entity
 	private float hideTimeout;
 	private boolean eaten = false;
 	
-	public Mushroom(TextureRegion region) {
-		sprite = new Sprite(region);
+	public Mushroom() {
+		sprite = new Sprite(RDAssets.i().mushroomTexture);
 		sprite.setOrigin(sprite.getWidth()/2, 0);
 	}
 	
