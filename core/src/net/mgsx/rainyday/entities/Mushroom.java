@@ -12,6 +12,7 @@ public class Mushroom extends Entity
 	private float time;
 	private boolean hide;
 	private float hideTimeout;
+	private boolean eaten = false;
 	
 	public Mushroom(TextureRegion region) {
 		sprite = new Sprite(region);
@@ -20,7 +21,7 @@ public class Mushroom extends Entity
 	
 	@Override
 	public void update(float delta) {
-		time += delta;
+		time += delta * (eaten ? 2 : 1);
 		if(hide){
 			hideTimeout -= delta;
 		}
@@ -28,18 +29,31 @@ public class Mushroom extends Entity
 	
 	@Override
 	public void draw(Batch batch){
+		float baseScale = 1f;
 		if(hide){
 			if(hideTimeout < 0)
-				sprite.setScale(Interpolation.bounceOut.apply(1 - time));
+				sprite.setScale(baseScale * Interpolation.bounceOut.apply(1 - time));
 		}else{
-			sprite.setScale(Interpolation.bounceOut.apply(time));
+			sprite.setScale(baseScale * Interpolation.bounceOut.apply(time));
 		}
-		sprite.setPosition(position.x - sprite.getWidth()/2, position.y);
+		sprite.setPosition(position.x - sprite.getWidth()/2, position.y + sprite.getHeight()/4);
 		sprite.draw(batch);
 	}
 
 	public boolean isOver() {
 		return hide && time > 1;
+	}
+	
+	public boolean isHidden() {
+		return hide;
+	}
+	
+	public void eat(){
+		eaten = true;
+	}
+	
+	public boolean isEaten() {
+		return eaten;
 	}
 
 	public void hide(float timeout) 

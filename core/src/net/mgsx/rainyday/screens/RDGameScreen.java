@@ -53,12 +53,13 @@ public class RDGameScreen extends ScreenAdapter
 	private Array<Mushroom> mushrooms = new Array<Mushroom>();
 	private Array<Monster> monsters = new Array<Monster>();
 	private Array<Entity> entities = new Array<Entity>();
+	private Color rainColor = new Color();
 	
 	private static enum WorldState{
 		WINTER, SPRING, SUMMER, AUTUMN, 
 	}
-	private WorldState worldState = WorldState.WINTER;
-	private float worldStateTimeout;
+	private WorldState worldState = WorldState.SUMMER;
+	private float worldStateTimeout = 5;
 	private TiledMapTileLayer groundLayer;
 	
 	public RDGameScreen() {
@@ -138,6 +139,50 @@ public class RDGameScreen extends ScreenAdapter
 		
 		hero.update(delta);
 		
+		for(Mushroom mushroom : mushrooms){
+			if(!mushroom.isHidden() && hero.position.dst(mushroom.position) < 16){
+				hero.eat();
+				mushroom.eat();
+				mushroom.hide(0);
+			}
+		}
+		
+		// chack rain
+		if(rain >= .5f) 
+		{
+			boolean underRainLeft = true;
+			{
+				int ix = (int)((hero.position.x - 8) / 32f);
+				int iy = (int)((hero.position.y + 56) / 32f);
+				for( ; iy < 20 ; iy++){
+					
+					Cell cell = groundLayer.getCell(ix, iy);
+					if(cell != null && cell.getTile() != null){
+						underRainLeft = false;
+						break;
+					}
+				}
+			}
+			boolean underRainRight = true;
+			{
+				int ix = (int)((hero.position.x + 8) / 32f);
+				int iy = (int)((hero.position.y + 56) / 32f);
+				for( ; iy < 20 ; iy++){
+					
+					Cell cell = groundLayer.getCell(ix, iy);
+					if(cell != null && cell.getTile() != null){
+						underRainRight = false;
+						break;
+					}
+				}
+			}
+			hero.underRain = underRainLeft || underRainRight;
+		}else{
+			hero.underRain = false;
+		}
+		
+		hero.asSkeleton = worldState == WorldState.WINTER;
+		
 		for(Entity entity : entities){
 			entity.update(delta);
 		}
@@ -148,10 +193,12 @@ public class RDGameScreen extends ScreenAdapter
 				entities.removeValue(mushroom, true);
 				mushrooms.removeIndex(i);
 				
-				Monster monster = new Monster(hero, monsterTexture);
-				monster.position.set(mushroom.position);
-				monsters.add(monster);
-				entities.add(monster);
+				if(!mushroom.isEaten()){
+					Monster monster = new Monster(hero, monsterTexture);
+					monster.position.set(mushroom.position);
+					monsters.add(monster);
+					entities.add(monster);
+				}
 			}else{
 				i++;
 			}
@@ -247,7 +294,7 @@ public class RDGameScreen extends ScreenAdapter
 		TiledMapTileLayer laddersLayer = (TiledMapTileLayer)map.getLayers().get("ladders");
 		{
 			int ix = (int)(hero.position.x / 32);
-			int iy = (int)(hero.position.y / 32 - .5f);
+			int iy = (int)(hero.position.y / 32 + .5f);
 			Cell cell = laddersLayer.getCell(ix, iy);
 			if(cell != null && cell.getTile() != null){
 				hero.canGoDown = true;
@@ -257,7 +304,7 @@ public class RDGameScreen extends ScreenAdapter
 		}
 		{
 			int ix = (int)(hero.position.x / 32);
-			int iy = MathUtils.ceil(hero.position.y / 32 - .5f);
+			int iy = MathUtils.ceil(hero.position.y / 32 + .5f);
 			Cell cell = laddersLayer.getCell(ix, iy);
 			if(cell != null && cell.getTile() != null){
 				hero.canGoUp = true;
@@ -266,7 +313,7 @@ public class RDGameScreen extends ScreenAdapter
 			}
 		}
 		
-		boolean autoScroll = worldState != WorldState.SUMMER;
+		boolean autoScroll = false; // XXX worldState != WorldState.SUMMER;
 		if(autoScroll)
 		{
 			cameraPosition.x += delta * 40; // XXX
@@ -307,36 +354,36 @@ public class RDGameScreen extends ScreenAdapter
 		batch.setShader(null);
 		batch.enableBlending();
 		
-		batch.setShader(heroShader);
-		
-		heroShader.setUniformf("u_color", Color.GREEN);
 		batch.end();
+		float lum = 1 - rain;
+		batch.setColor(lum, lum, lum, 1);
 		mapRenderer.setView(camera);
 		mapRenderer.render();
 		batch.begin();
 		
-		heroShader.setUniformf("u_color", Color.ORANGE);
-		hero.draw(batch);
-		batch.flush();
-		
-		heroShader.setUniformf("u_color", Color.BROWN);
 		for(Mushroom mushroom : mushrooms){
 			mushroom.draw(batch);
 		}
-		batch.flush();
+		
+//		batch.setShader(heroShader);
+//		heroShader.setUniformf("u_color", Color.ORANGE);
+		hero.draw(batch);
+		batch.setShader(null);
 		
 		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-		heroShader.setUniformf("u_color", Color.PURPLE);
+		//heroShader.setUniformf("u_color", Color.PURPLE);
 		for(Monster monster : monsters){
 			monster.draw(batch);
 		}
 		batch.flush();
 		
-		batch.setShader(null);
+		
+		rainColor.set(0, .5f, 1, 1);
 		
 		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 		batch.setShader(rainShader);
 		rainShader.setUniformf("u_time", time);
+		rainShader.setUniformf("u_color", rainColor);
 		int NRAYS = 21;
 		float rayWidth = 32;
 		for(int i=0 ; i<NRAYS ; i++){
@@ -350,13 +397,13 @@ public class RDGameScreen extends ScreenAdapter
 				}
 			}
 			float fx = (ix + .5f) * 32;
-			float fy2 = (piy + .5f) * 32;
+			float fy2 = (piy + .75f) * 32;
 			// XXX fy2 = MathUtils.lerp(640, fy2, MathUtils.clamp(rain * 1, 0, 1));
-			if(Math.abs(hero.position.x - fx) < 32){
-				fy2 = Math.max(fy2, hero.position.y + 64 - 16);
-			}
+//			if(Math.abs(hero.position.x - fx) < 32){
+//				fy2 = Math.max(fy2, hero.position.y + 64 - 16);
+//			}
 			
-			batch.setColor(randomLookup[ix % randomLookup.length], 1,1, rain * 0.3f);
+			batch.setColor(randomLookup[ix % randomLookup.length], 1,1, rain * 1f);
 			batch.draw(perlin, fx - rayWidth/2, fy2, rayWidth, 640);
 		}
 		batch.setShader(null);

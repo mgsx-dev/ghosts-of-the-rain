@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Vector2;
 
 public class Monster extends Entity
 {
@@ -13,6 +14,7 @@ public class Monster extends Entity
 	private boolean hide;
 	private float hideTimeout;
 	private Hero hero;
+	private Vector2 direction = new Vector2();
 	
 	public Monster(Hero hero, TextureRegion region) {
 		this.hero = hero;
@@ -25,8 +27,17 @@ public class Monster extends Entity
 		time += delta;
 		if(hide){
 			hideTimeout -= delta;
+		}else{
+			direction.set(hero.position).sub(position);
+			float len = direction.len();
+			if(len > 16){
+				float speed = 30;
+				position.mulAdd(direction, speed * delta / len);
+			}else{
+				hero.hurt();
+				hide(0);
+			}
 		}
-		position.lerp(hero.position, delta);
 	}
 	
 	@Override
