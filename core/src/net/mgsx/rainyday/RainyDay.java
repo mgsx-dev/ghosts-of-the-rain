@@ -19,7 +19,6 @@ public class RainyDay extends Game {
 	public void create () {
 		menuScreen = new RDMenuScreen();
 		setScreen(menuScreen);
-		// setScreen(new RDGameScreen());
 	}
 
 	public void startGame() 
@@ -32,7 +31,10 @@ public class RainyDay extends Game {
 	}
 	
 	public void backToMenu(){
-		menuScreen.reset();
+		if(menuScreen != null){
+			menuScreen.dispose();
+		}
+		menuScreen = new RDMenuScreen();
 		setScreen(menuScreen);
 	}
 	

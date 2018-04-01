@@ -14,7 +14,7 @@ public class Hero {
 
 	private Sprite sprite;
 
-	public Vector2 position = new Vector2();
+	public Vector2 position = new Vector2(0, 480);
 
 	public boolean canGoUp;
 	public boolean canGoDown;
@@ -42,11 +42,16 @@ public class Hero {
 	private Color color = new Color();
 
 	public boolean underRain;
+	private boolean over;
 
 	private float flashTime;
 	
 	public Hero() {
 		sprite = new Sprite(RDAssets.i().textureHeroPlain, 0, 0, 64, 64);
+	}
+	
+	public boolean isDead() {
+		return dead;
 	}
 	
 	public void draw(Batch batch){
@@ -74,6 +79,10 @@ public class Hero {
 		sprite.setColor(color);
 		sprite.draw(batch);
 	}
+	
+	public boolean isOver() {
+		return over;
+	}
 
 	public void update(float delta) 
 	{
@@ -91,7 +100,12 @@ public class Hero {
 		float dx = 0;
 		float dy = 0;
 		
-		if(eatTimeout > 0){
+		if(dead){
+			animationTime += delta;
+			sprite.setRegion((int)Math.min(4, animationTime * 4) * 64, 64 * 20, 64, 64);
+			over = animationTime > 5;
+		}
+		else if(eatTimeout > 0){
 			eatTimeout -= delta;
 			animationTime += delta * animationSpeed;
 			
@@ -143,10 +157,12 @@ public class Hero {
 		hurt(LIFE_PER_MONSTER);
 	}
 	private void hurt(float damages) {
+		if(dead) return;
 		life -= damages;
 		if(life < 0){
 			dead = true;
 			life = 0;
+			animationTime = 0;
 		}
 		hurtTimeout = .3f;
 	}

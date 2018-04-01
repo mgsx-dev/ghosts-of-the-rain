@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import net.mgsx.rainyday.RainyDay;
 import net.mgsx.rainyday.assets.RDAssets;
 import net.mgsx.rainyday.entities.Entity;
 import net.mgsx.rainyday.entities.Hero;
@@ -62,6 +63,12 @@ public class RDGameScreen extends RDBaseScreen
 	@Override
 	protected void update(float delta) {
 		super.update(delta);
+		
+		if(hero.isDead()){
+			if(hero.isOver()){
+				RainyDay.i().backToMenu();
+			}
+		}
 		
 		rainTime += delta;
 		rain = MathUtils.sinDeg(rainTime * 360 / 10f)*.5f+.5f;

@@ -55,8 +55,4 @@ public class RDMenuScreen extends RDBaseScreen
 		batch.setColor(l,l,l, 1);
 		batch.draw(region, cameraPosition.x - region.getRegionWidth()/2, 480 - region.getRegionHeight());
 	}
-
-	public void reset() {
-		cameraPosition.x = 320;
-	}
 }
